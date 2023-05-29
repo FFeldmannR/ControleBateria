@@ -13,15 +13,13 @@ import android.widget.TextView;
 //
 public class MainActivity extends AppCompatActivity {
     private TextView batteryText;
-    public Intent intent1;
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
             //
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             float batteryPct = level * 100 / (float)scale;
-            intent1 = new Intent();
-            intent1.putExtra("NIVELBATERIA", (int) batteryPct);
+            verificaSeCarregando( batteryPct );
             batteryText.setText( batteryPct + "%" );
         }
     };
@@ -34,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
         batteryText = (TextView) findViewById(R.id.bateria);
         this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         //
-        verificaSeCarregando();
         //
         /* teste de vibração com botão
         Button btnVibrar = (Button) findViewById(R.id.btnVibrar);
@@ -45,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         }); */
     }//fim onCreate
     //
-    public void verificaSeCarregando(){
+    public void verificaSeCarregando( float nivelBateria ){
         // Obtenha o contexto do aplicativo
         Context context = getApplicationContext();
 
@@ -63,13 +60,13 @@ public class MainActivity extends AppCompatActivity {
         if (isCharging) {
             // O dispositivo está carregando
             Log.d("LogTag", "esta carregando");
-            Log.d("LogTag", "bateria: "+ intent1.getIntExtra("NIVELBATERIA", -1) );
-            if ( intent1.getIntExtra("NIVELBATERIA", -1) > 80){
+            Log.d("LogTag", "bateria: " + nivelBateria );
+            if ( nivelBateria >= 80){
                 //chama vibrar
                 Log.d("LogTag", "bateria carregada");
-                //do {
-                //    vibrar();
-                //}while (isCharging);
+                do {
+                    vibrar();
+                }while (isCharging);
             }
         } else {
             // O dispositivo não está carregando
@@ -84,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         // Verifique se o dispositivo suporta vibração
         if (vibrator.hasVibrator()) {
             // Defina a duração da vibração em milissegundos
-            long duration = 500; // 0,5 segundo
+            long duration = 1000; // 0,5 segundo
 
             // Vibra o dispositivo pelo tempo especificado
             vibrator.vibrate(duration);
