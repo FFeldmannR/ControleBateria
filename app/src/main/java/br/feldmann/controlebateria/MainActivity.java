@@ -9,18 +9,19 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 //
 public class MainActivity extends AppCompatActivity {
     private TextView batteryText;
+    public Intent intent1;
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
             //
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             float batteryPct = level * 100 / (float)scale;
+            intent1 = new Intent();
+            intent1.putExtra("NIVELBATERIA", (int) batteryPct);
             batteryText.setText( batteryPct + "%" );
         }
     };
@@ -29,18 +30,53 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("Construtor", "onCreate");
+        // EXIBE NIVEL DE BATERIA
+        batteryText = (TextView) findViewById(R.id.bateria);
+        this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         //
+        verificaSeCarregando();
+        //
+        /* teste de vibração com botão
         Button btnVibrar = (Button) findViewById(R.id.btnVibrar);
         btnVibrar.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 vibrar(); //chamada do metodo vibrar
             }
-        });
-        // EXIBE NIVEL DE BATERIA
-        batteryText = (TextView) findViewById(R.id.bateria);
-        this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        //
+        }); */
     }//fim onCreate
+    //
+    public void verificaSeCarregando(){
+        // Obtenha o contexto do aplicativo
+        Context context = getApplicationContext();
+
+        // Crie um IntentFilter para capturar a ação de alteração do estado da bateria
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+
+        // Registre o receptor de broadcast para receber informações sobre a bateria
+        Intent batteryStatus = context.registerReceiver(null, intentFilter);
+
+        // Verifique se o dispositivo está conectado à fonte de energia
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        if (isCharging) {
+            // O dispositivo está carregando
+            Log.d("LogTag", "esta carregando");
+            Log.d("LogTag", "bateria: "+ intent1.getIntExtra("NIVELBATERIA", -1) );
+            if ( intent1.getIntExtra("NIVELBATERIA", -1) > 80){
+                //chama vibrar
+                Log.d("LogTag", "bateria carregada");
+                //do {
+                //    vibrar();
+                //}while (isCharging);
+            }
+        } else {
+            // O dispositivo não está carregando
+            Log.d("LogTag", "NÃO esta carregando");
+        }
+    }
+    //
     public void vibrar(){
         // Obtenha uma referência ao serviço de vibração do sistema
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
