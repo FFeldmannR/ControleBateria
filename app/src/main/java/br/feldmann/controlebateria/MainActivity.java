@@ -23,4 +23,11 @@ public class MainActivity extends AppCompatActivity {
 
         registerReceiver(batteryReceiver, intentFilter);
     }//fim onCreate
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("Contrutor", "onDestroy");
+        unregisterReceiver(batteryReceiver);
+    }
 }//fim class

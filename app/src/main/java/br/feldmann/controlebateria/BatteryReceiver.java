@@ -35,16 +35,19 @@ public class BatteryReceiver extends BroadcastReceiver {
         // EXIBE NIVEL DE BATERIA
         Log.d("LogTag", "bateria no textview: "+ batteryPct );
         tvBateria.setText( batteryPct + "%" );
+        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         //
+        if (!isCharging){
+            Toast.makeText(context, "Desconectado", Toast.LENGTH_LONG).show();
+            vibrator.cancel(); }
         //
-        if (isCharging && batteryPct == 70){ //teste com menos bateria (70%)
+        if (isCharging && batteryPct >= 100){
             // O dispositivo está carregando e a bateria atingiu 100%
 
             // Exemplo de alerta via Toast
             Toast.makeText(context, "Bateria em 100%!", Toast.LENGTH_LONG).show();
 
             // Exemplo de vibração incessante
-            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator != null && vibrator.hasVibrator()) {
                 vibrator.vibrate(new long[]{0, 1000}, 0);
             }
