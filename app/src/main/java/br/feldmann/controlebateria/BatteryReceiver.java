@@ -37,7 +37,7 @@ public class BatteryReceiver extends BroadcastReceiver {
         tvBateria.setText( batteryPct + "%" );
         //
         //
-        if (isCharging && batteryPct == 100){
+        if (isCharging && batteryPct == 70){ //teste com menos bateria (70%)
             // O dispositivo está carregando e a bateria atingiu 100%
 
             // Exemplo de alerta via Toast
